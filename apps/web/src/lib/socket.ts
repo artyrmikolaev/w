@@ -14,8 +14,8 @@ export function connectSocket(token: string): Socket {
     socket = null;
   }
 
-  const isMobile = window.location.origin.includes('capacitor') || window.location.origin.includes('file://');
-  const socketUrl = isMobile ? 'http://192.168.1.178:3001' : window.location.origin;
+  // Always connect Socket.io to our deployed production server
+  const socketUrl = 'https://w-e6gq.onrender.com';
 
   socket = io(socketUrl, {
     auth: { token },

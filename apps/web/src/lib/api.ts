@@ -1,8 +1,7 @@
 import type { User, UserBasic, UserPresence, Chat, Message, MediaItem, StoryGroup, FriendRequest, FriendWithId, FriendshipStatus } from './types';
 
-// Check if running in Capacitor/Mobile
-const isMobile = window.location.origin.includes('capacitor') || window.location.origin.includes('file://');
-const API_BASE = isMobile ? 'http://192.168.1.178:3001/api' : '/api';
+// Always point to our deployed production server on Render
+const API_BASE = 'https://w-e6gq.onrender.com/api';
 class ApiClient {
   private token: string | null = null;
 
