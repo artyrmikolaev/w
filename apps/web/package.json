@@ -11,6 +11,7 @@
     "dev:electron": "vite",
     "build:electron": "tsc -b && vite build && electron-builder",
     "build": "tsc -b && vite build",
+    "build:web": "tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
