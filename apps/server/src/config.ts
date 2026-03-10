@@ -24,7 +24,7 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || 'vortex-dev-fallback-not-for-production',
   corsOrigins: process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
-    : ['http://localhost:5173', 'http://localhost:3000'],
+    : '*', // Allow all origins by default so Vercel and mobile apps can connect
   uploadsDir: 'uploads',
   /** Minimum password length */
   minPasswordLength: 8,
