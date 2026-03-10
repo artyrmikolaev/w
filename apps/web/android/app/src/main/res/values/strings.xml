@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Messenger Test</string>
+    <string name="title_activity_main">Messenger Test</string>
+    <string name="package_name">com.vortex.messenger</string>
+    <string name="custom_url_scheme">com.vortex.messenger</string>
+</resources>
