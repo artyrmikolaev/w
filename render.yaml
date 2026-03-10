@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: vortex-server
+    env: node
+    buildCommand: npm install && npm run db:push && npm run build -w apps/server
+    startCommand: npm start -w apps/server
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
