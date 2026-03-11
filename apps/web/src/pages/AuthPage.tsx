@@ -159,7 +159,10 @@ export default function AuthPage() {
             </AnimatePresence>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-1.5">{t('password')}</label>
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5 flex items-center justify-between">
+                <span>{t('password')}</span>
+                {!isLogin && <span className="text-zinc-500 text-xs font-normal">Мин. 6 символов</span>}
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}

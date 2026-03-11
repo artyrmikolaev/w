@@ -63,8 +63,27 @@ app.use('/uploads', (req, res, next) => {
   if (isEncryptionEnabled()) {
     const decrypted = decryptFileToBuffer(filePath);
     if (decrypted) {
-      res.setHeader('Content-Length', decrypted.length);
-      res.end(decrypted);
+      if (req.headers.range) {
+        const parts = req.headers.range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : decrypted.length - 1;
+        const chunksize = (end - start) + 1;
+        
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${decrypted.length}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunksize,
+          'Content-Type': contentType,
+        });
+        res.end(decrypted.slice(start, end + 1));
+      } else {
+        res.writeHead(200, {
+          'Content-Length': decrypted.length,
+          'Content-Type': contentType,
+          'Accept-Ranges': 'bytes',
+        });
+        res.end(decrypted);
+      }
       return;
     }
     // Decryption failed — file is likely unencrypted (legacy), fall through to static
