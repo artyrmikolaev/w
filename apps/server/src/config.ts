@@ -29,7 +29,7 @@ export const config = {
   /** Minimum password length */
   minPasswordLength: 8,
   /** Maximum registrations allowed from the same IP (permanent, DB-level) */
-  maxRegistrationsPerIp: Number(process.env.MAX_REGISTRATIONS_PER_IP) || 2,
+  maxRegistrationsPerIp: Number(process.env.MAX_REGISTRATIONS_PER_IP) || 50,
   /** TURN server URL for WebRTC calls (e.g. turn:your-domain.com:3478) */
   turnUrl: process.env.TURN_URL || '',
   /** Shared secret for TURN server (coturn static-auth-secret) */

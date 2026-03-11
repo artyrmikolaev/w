@@ -12,7 +12,7 @@ const router = Router();
 // ─── Strict registration rate limiter: 3 registrations per IP per hour ───
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3,
+  max: 10,
   message: { error: 'Слишком много регистраций с этого IP. Попробуйте через час.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -22,7 +22,7 @@ const registerLimiter = rateLimit({
 
 // In-memory cooldown: track last registration timestamp per IP (prevents rapid-fire even within rate limit)
 const registrationCooldowns = new Map<string, number>();
-const REGISTRATION_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes between registrations from same IP
+const REGISTRATION_COOLDOWN_MS = 30 * 1000; // 30 seconds between registrations from same IP
 
 // Регистрация
 router.post('/register', registerLimiter, async (req, res) => {

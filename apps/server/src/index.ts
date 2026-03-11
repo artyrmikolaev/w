@@ -21,6 +21,8 @@ import { decryptFileToBuffer, isEncryptionEnabled } from './encrypt';
 import { UPLOADS_ROOT } from './shared';
 
 const app = express();
+// Trust Nginx reverse proxy — use X-Real-IP / X-Forwarded-For for rate limiting
+app.set('trust proxy', 1);
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
