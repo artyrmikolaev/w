@@ -14,8 +14,14 @@ export function connectSocket(token: string): Socket {
     socket = null;
   }
 
-  // Use current page origin so socket connects to the same server
-  const socketUrl = window.location.origin;
+  // Use current page origin, but if we are in a native app (Electron/Capacitor) or local dev,
+  // we must connect to the live remote server.
+  const isLocalOrNative = window.location.origin.includes('localhost') ||
+                        window.location.origin.includes('127.0.0.1') ||
+                        window.location.protocol === 'file:' ||
+                        window.location.protocol === 'capacitor:';
+                        
+  const socketUrl = isLocalOrNative ? 'https://messengertest.shop' : window.location.origin;
 
   socket = io(socketUrl, {
     auth: { token },

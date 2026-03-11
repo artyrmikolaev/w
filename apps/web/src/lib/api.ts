@@ -1,7 +1,14 @@
 import type { User, UserBasic, UserPresence, Chat, Message, MediaItem, StoryGroup, FriendRequest, FriendWithId, FriendshipStatus } from './types';
 
-// Use relative URL so the app works on any domain/IP (served by same Nginx)
-export const API_BASE = '/api';
+// Dynamically determine the API base.
+// If we are running in a native app (Capacitor/Electron) or local dev, point to the live server.
+// Otherwise (running on the real domain/VPS), use the relative path so it just works.
+export const API_BASE = (
+  window.location.origin.includes('localhost') ||
+  window.location.origin.includes('127.0.0.1') ||
+  window.location.protocol === 'file:' ||
+  window.location.protocol === 'capacitor:'
+) ? 'https://messengertest.shop/api' : '/api';
 class ApiClient {
   private token: string | null = null;
 
