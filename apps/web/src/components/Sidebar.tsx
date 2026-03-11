@@ -11,7 +11,7 @@ import {
 import { useAuthStore } from '../stores/authStore';
 import { useChatStore } from '../stores/chatStore';
 import { useLang } from '../lib/i18n';
-import { api } from '../lib/api';
+import { api, getAssetUrl } from '../lib/api';
 import { getInitials, generateAvatarColor } from '../lib/utils';
 import Avatar from './Avatar';
 import { StoryGroup } from '../lib/types';
@@ -79,7 +79,7 @@ export default function Sidebar() {
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <img src="/logo.png" alt="Messenger Test" className="w-8 h-8 rounded-lg object-cover" />
+            <img src={getAssetUrl('/logo.png')} alt="Messenger Test" className="w-8 h-8 rounded-lg object-cover" />
             <h1 className="text-lg font-bold gradient-text truncate">Messenger Test</h1>
           </div>
           <button

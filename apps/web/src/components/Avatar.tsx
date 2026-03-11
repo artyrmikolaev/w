@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { getInitials, generateAvatarColor } from '../lib/utils';
+import { getAssetUrl } from '../lib/api';
 
 interface AvatarProps {
   src?: string | null;
@@ -34,7 +35,7 @@ function AvatarInner({ src, name, size = 'md', className = '', online }: AvatarP
     <div className={`relative shrink-0 ${className}`}>
       {src ? (
         <img
-          src={src}
+          src={getAssetUrl(src)}
           alt={name}
           className={`${sizeClass} rounded-full object-cover`}
         />

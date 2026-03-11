@@ -3,12 +3,20 @@ import type { User, UserBasic, UserPresence, Chat, Message, MediaItem, StoryGrou
 // Dynamically determine the API base.
 // If we are running in a native app (Capacitor/Electron) or local dev, point to the live server.
 // Otherwise (running on the real domain/VPS), use the relative path so it just works.
-export const API_BASE = (
+export const SERVER_URL = (
   window.location.origin.includes('localhost') ||
   window.location.origin.includes('127.0.0.1') ||
   window.location.protocol === 'file:' ||
   window.location.protocol === 'capacitor:'
-) ? 'https://messengertest.shop/api' : '/api';
+) ? 'https://messengertest.shop' : window.location.origin;
+
+export const API_BASE = `${SERVER_URL}/api`;
+
+export const getAssetUrl = (path: string | null | undefined): string => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${SERVER_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+};
 class ApiClient {
   private token: string | null = null;
 

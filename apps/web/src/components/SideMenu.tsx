@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useChatStore } from '../stores/chatStore';
-import { api } from '../lib/api';
+import { api, getAssetUrl } from '../lib/api';
 import { getSocket } from '../lib/socket';
 import { useLang } from '../lib/i18n';
 import { useThemeStore, ChatTheme } from '../stores/themeStore';
@@ -331,7 +331,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
               <div className="absolute -inset-1 bg-gradient-to-r from-accent via-purple-500 to-accent rounded-full opacity-60 blur group-hover:opacity-90 transition duration-500 animate-[spin_4s_linear_infinite]" />
               <div className="relative">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt="" className="w-[72px] h-[72px] rounded-full object-cover ring-[3px] ring-surface" />
+                  <img src={getAssetUrl(user.avatar)} alt="" className="w-[72px] h-[72px] rounded-full object-cover ring-[3px] ring-surface" />
                 ) : (
                   <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-surface to-surface-secondary flex items-center justify-center ring-[3px] ring-surface relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-tr from-accent/20 to-purple-500/20" />
@@ -439,7 +439,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
 
             <div className="relative">
               {user?.avatar ? (
-                <img src={user.avatar} alt="" className="w-28 h-28 rounded-full object-cover ring-4 ring-surface bg-surface" />
+                <img src={getAssetUrl(user.avatar)} alt="" className="w-28 h-28 rounded-full object-cover ring-4 ring-surface bg-surface" />
               ) : (
                 <div className="w-28 h-28 rounded-full bg-gradient-to-br from-surface to-surface-secondary flex items-center justify-center text-white font-bold text-3xl ring-4 ring-surface relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-tr from-accent/20 to-purple-500/20" />
@@ -838,7 +838,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                       {friendSearchResults.map((u) => (
                         <div key={u.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-border/50">
                           {u.avatar ? (
-                            <img src={u.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                            <img src={getAssetUrl(u.avatar)} alt="" className="w-10 h-10 rounded-full object-cover" />
                           ) : (
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-vortex-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
                               {(u.displayName || u.username || '?')[0].toUpperCase()}
@@ -873,7 +873,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                   {friendRequests.map((req) => (
                     <div key={req.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-border/50">
                       {req.user.avatar ? (
-                        <img src={req.user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                        <img src={getAssetUrl(req.user.avatar)} alt="" className="w-10 h-10 rounded-full object-cover" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-vortex-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
                           {(req.user.displayName || req.user.username || '?')[0].toUpperCase()}
@@ -918,7 +918,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                     <div key={friend.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group/friend">
                       <div className="relative">
                         {friend.avatar ? (
-                          <img src={friend.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                          <img src={getAssetUrl(friend.avatar)} alt="" className="w-10 h-10 rounded-full object-cover" />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-vortex-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
                             {(friend.displayName || friend.username || '?')[0].toUpperCase()}
@@ -962,7 +962,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
         <h3 className="text-sm font-semibold text-white flex-1">{t('aboutApp')}</h3>
       </div>
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-        <img src="/logo.png" alt="Messenger Test" className="w-20 h-20 rounded-2xl object-cover mb-4 ring-2 ring-white/10" />
+        <img src={getAssetUrl('/logo.png')} alt="Messenger Test" className="w-20 h-20 rounded-2xl object-cover mb-4 ring-2 ring-white/10" />
         <h2 className="text-xl font-bold gradient-text mb-1">Messenger Test</h2>
         <p className="text-sm text-zinc-400 mb-6">{t('version')} 1.0.0</p>
         <div className="text-xs text-zinc-500 space-y-1">
