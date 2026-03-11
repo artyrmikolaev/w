@@ -14,8 +14,9 @@ export function connectSocket(token: string): Socket {
     socket = null;
   }
 
-  // Always connect Socket.io to our deployed production server
-  const socketUrl = 'https://w-e6gq.onrender.com';
+  // Always  // The Render backend was previously used, now switching to the Hostinger VPS backend
+  // const socketUrl = 'https://w-e6gq.onrender.com';
+  const socketUrl = 'https://messengertest.shop';
 
   socket = io(socketUrl, {
     auth: { token },
