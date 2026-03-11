@@ -78,40 +78,43 @@ export default function ChatPage() {
     if (!socket) return;
 
     socket.on('new_message', async (message: Message) => {
-      // If this chat isn't in our store yet (e.g. someone just created it and sent a message),
-      // fetch chats so the new chat appears in the sidebar immediately
+      // Add message immediately so order is strictly preserved
+      addMessage(message);
+
+      // Play notification sound for messages from others
+      if (message.senderId !== user?.id && !isChatMuted(message.chatId)) {
+        playNotificationSound();
+      }
+
+      // If this chat isn't in our store yet, fetch chats so the new chat appears in the sidebar
       const { chats } = useChatStore.getState();
       if (!chats.some(c => c.id === message.chatId)) {
         try {
           const allChats = await api.getChats();
           const newChat = allChats.find(c => c.id === message.chatId);
           if (newChat) {
-            // Reset unreadCount to 0 because addMessage below will increment it by 1
-            useChatStore.getState().addChat({ ...newChat, unreadCount: 0 });
+            // Note: addChat ignores duplicates if already added by a parallel fetch
+            useChatStore.getState().addChat({ ...newChat, unreadCount: 1, messages: [message] });
           }
         } catch (e) {
           console.error('Failed to fetch new chat:', e);
         }
       }
-      addMessage(message);
-      // Play notification sound for messages from others
-      if (message.senderId !== user?.id && !isChatMuted(message.chatId)) {
-        playNotificationSound();
-      }
     });
 
     socket.on('scheduled_delivered', async (message: Message & { _recipientName?: string; _deliveredAt?: string }) => {
-      // If chat unknown, fetch it first
+      // A scheduled message was delivered: update it in store immediately
+      updateMessage({ ...message, scheduledAt: null });
+
+      // If chat unknown, fetch it
       const { chats } = useChatStore.getState();
       if (!chats.some(c => c.id === message.chatId)) {
         try {
           const allChats = await api.getChats();
           const newChat = allChats.find(c => c.id === message.chatId);
-          if (newChat) useChatStore.getState().addChat(newChat);
+          if (newChat) useChatStore.getState().addChat({ ...newChat, messages: [{ ...message, scheduledAt: null }] });
         } catch (_) { /* ignore */ }
       }
-      // A scheduled message was delivered: update it in store (remove scheduledAt)
-      updateMessage({ ...message, scheduledAt: null });
 
       // Show delivery notification to the sender
       if (message.senderId === user?.id && message._recipientName) {

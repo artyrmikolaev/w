@@ -170,11 +170,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
   updateMessage: (message) => {
     set((state) => {
       const chatMessages = state.messages[message.chatId] || [];
+      const updatedMessages = chatMessages.map((m) => (m.id === message.id ? message : m));
+
+      const updatedChats = state.chats.map((chat) => {
+        if (chat.id === message.chatId && chat.messages?.[0]?.id === message.id) {
+          return { ...chat, messages: [message] };
+        }
+        return chat;
+      });
+
       return {
         messages: {
           ...state.messages,
-          [message.chatId]: chatMessages.map((m) => (m.id === message.id ? message : m)),
+          [message.chatId]: updatedMessages,
         },
+        chats: updatedChats,
       };
     });
   },
@@ -326,24 +336,41 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const currentUserId = useAuthStore.getState().user?.id;
     set((state) => {
       const chatMessages = state.messages[chatId] || [];
-      return {
-        messages: {
-          ...state.messages,
-          [chatId]: chatMessages.map((m) => {
-            if (messageIds.includes(m.id)) {
-              const alreadyRead = m.readBy?.some((r) => r.userId === userId);
-              if (alreadyRead) return m;
-              return { ...m, readBy: [...(m.readBy || []), { userId }] };
+      const updatedMessages = chatMessages.map((m) => {
+        if (messageIds.includes(m.id)) {
+          const alreadyRead = m.readBy?.some((r) => r.userId === userId);
+          if (alreadyRead) return m;
+          return { ...m, readBy: [...(m.readBy || []), { userId }] };
+        }
+        return m;
+      });
+
+      const updatedChats = state.chats.map((chat) => {
+        if (chat.id === chatId) {
+          let needsPreviewUpdate = false;
+          let newPreview = chat.messages?.[0];
+          
+          if (newPreview && messageIds.includes(newPreview.id)) {
+            const alreadyRead = newPreview.readBy?.some((r) => r.userId === userId);
+            if (!alreadyRead) {
+              newPreview = { ...newPreview, readBy: [...(newPreview.readBy || []), { userId }] };
+              needsPreviewUpdate = true;
             }
-            return m;
-          }),
-        },
-        chats: state.chats.map((chat) => {
-          if (chat.id === chatId && userId === currentUserId) {
-            return { ...chat, unreadCount: 0 };
           }
-          return chat;
-        }),
+
+          if (userId === currentUserId) {
+            return { ...chat, unreadCount: 0, ...(needsPreviewUpdate ? { messages: [newPreview] } : {}) };
+          }
+          if (needsPreviewUpdate) {
+            return { ...chat, messages: [newPreview] };
+          }
+        }
+        return chat;
+      });
+
+      return {
+        messages: { ...state.messages, [chatId]: updatedMessages },
+        chats: updatedChats,
       };
     });
   },
