@@ -223,13 +223,27 @@ export default function CallModal({ isOpen, onClose, targetUser, callType: initi
       // Include !t.muted so we detect when the remote stops sending
       // (replaceTrack(null) or direction change causes muted=true)
       const checkVideo = () => {
-        const videoTracks = stream.getVideoTracks();
-        const hasVideo = videoTracks.length > 0 && videoTracks.some(
-          t => t.readyState === 'live' && t.enabled && !t.muted
-        );
-        console.log('[checkVideo] videoTracks:', videoTracks.map(t =>
-          `${t.label} state=${t.readyState} enabled=${t.enabled} muted=${t.muted}`
-        ), '→ hasRemoteVideo:', hasVideo);
+        let hasVideo = false;
+        if (remoteStreamRef.current) {
+          const videoTracks = remoteStreamRef.current.getVideoTracks();
+          hasVideo = videoTracks.length > 0 && videoTracks.some(
+            t => t.readyState === 'live' && t.enabled && !t.muted
+          );
+        }
+
+        // Fallback for browsers that don't fire mute conveniently:
+        // if no transceiver is actively receiving video (recvonly/sendrecv), hasVideo is false.
+        const pc = peerRef.current;
+        if (pc) {
+          const receivingTransceiver = pc.getTransceivers().find(t =>
+            t.receiver?.track?.kind === 'video' &&
+            (t.currentDirection === 'recvonly' || t.currentDirection === 'sendrecv')
+          );
+          if (!receivingTransceiver) {
+            hasVideo = false;
+          }
+        }
+
         setHasRemoteVideo(hasVideo);
       };
 
@@ -1045,10 +1059,16 @@ export default function CallModal({ isOpen, onClose, targetUser, callType: initi
       // Start screen share — remember current video state
       hadVideoBeforeScreenShareRef.current = callType === 'video' && !isVideoOff;
       try {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } },
-          audio: false,
-        });
+        let screenStream;
+        try {
+          screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } },
+            audio: false,
+          });
+        } catch (err) {
+          // Fallback if browser rejects audio: false or specific constraints
+          screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        }
         screenStreamRef.current = screenStream;
         const screenTrack = screenStream.getVideoTracks()[0];
 
@@ -1262,7 +1282,6 @@ export default function CallModal({ isOpen, onClose, targetUser, callType: initi
       scheduleClose();
     };
 
-    // Renegotiation (e.g. when remote adds screen share to audio-only call)
     const onRenegotiate = async (data: { from: string; offer: RTCSessionDescriptionInit }) => {
       if (!peerRef.current || data.from !== targetUserIdRef.current) return;
       try {
@@ -1273,6 +1292,8 @@ export default function CallModal({ isOpen, onClose, targetUser, callType: initi
           targetUserId: targetUserIdRef.current,
           answer: peerRef.current.localDescription,
         });
+        // State flush
+        setTimeout(() => setHasRemoteVideo(v => v), 0); // Trigger re-render if needed
       } catch (err) {
         console.error('Renegotiation error:', err);
       }
@@ -1282,6 +1303,7 @@ export default function CallModal({ isOpen, onClose, targetUser, callType: initi
       if (!peerRef.current || data.from !== targetUserIdRef.current) return;
       try {
         await peerRef.current.setRemoteDescription(new RTCSessionDescription(data.answer));
+        setTimeout(() => setHasRemoteVideo(v => v), 0); // Trigger re-render if needed
       } catch (err) {
         console.error('Renegotiation answer error:', err);
       }

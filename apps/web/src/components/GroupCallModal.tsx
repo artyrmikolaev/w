@@ -16,6 +16,7 @@ interface PeerState {
   pc: RTCPeerConnection;
   remoteStream: MediaStream;
   hasVideo: boolean;
+  checkVideo?: () => void;
 }
 
 interface GroupCallModalProps {
@@ -137,17 +138,24 @@ export default function GroupCallModal({ isOpen, onClose, chatId, chatName, call
       if (!remoteStream.getTracks().includes(e.track)) {
         remoteStream.addTrack(e.track);
       }
-      const hasVid = remoteStream.getVideoTracks().some(t => t.readyState === 'live' && t.enabled && !t.muted);
-      peerState.hasVideo = hasVid;
+      const checkVideo = () => {
+        let hasVid = remoteStream.getVideoTracks().some(t => t.readyState === 'live' && t.enabled && !t.muted);
+        const receivingTransceiver = pc.getTransceivers().find(t =>
+          t.receiver?.track?.kind === 'video' &&
+          (t.currentDirection === 'recvonly' || t.currentDirection === 'sendrecv')
+        );
+        if (!receivingTransceiver) {
+          hasVid = false;
+        }
+        peerState.hasVideo = hasVid;
+        forceUpdate(n => n + 1);
+      };
 
-      e.track.onunmute = () => {
-        peerState.hasVideo = remoteStream.getVideoTracks().some(t => t.readyState === 'live' && t.enabled && !t.muted);
-        forceUpdate(n => n + 1);
-      };
-      e.track.onmute = () => {
-        peerState.hasVideo = remoteStream.getVideoTracks().some(t => t.readyState === 'live' && t.enabled && !t.muted);
-        forceUpdate(n => n + 1);
-      };
+      peerState.checkVideo = checkVideo; // Attach to state so we can call it later
+      checkVideo();
+
+      e.track.onunmute = checkVideo;
+      e.track.onmute = checkVideo;
 
       // Play audio through audio element
       const audioEl = remoteAudioRefs.current.get(targetUserId);
@@ -281,10 +289,15 @@ export default function GroupCallModal({ isOpen, onClose, chatId, chatName, call
       setIsScreenSharing(false);
     } else {
       try {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } },
-          audio: false,
-        });
+        let screenStream;
+        try {
+          screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } },
+            audio: false,
+          });
+        } catch (e) {
+          screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        }
         screenStreamRef.current = screenStream;
         const screenTrack = screenStream.getVideoTracks()[0];
 
@@ -582,6 +595,7 @@ export default function GroupCallModal({ isOpen, onClose, chatId, chatName, call
       const peerState = peersRef.current.get(data.from);
       if (!peerState) return;
       await peerState.pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+      if (peerState.checkVideo) setTimeout(() => peerState.checkVideo?.(), 0);
       const answer = await peerState.pc.createAnswer();
       await peerState.pc.setLocalDescription(answer);
       socket.emit('group_call_renegotiate_answer', { chatId, targetUserId: data.from, answer: peerState.pc.localDescription });
@@ -592,6 +606,7 @@ export default function GroupCallModal({ isOpen, onClose, chatId, chatName, call
       const peerState = peersRef.current.get(data.from);
       if (peerState) {
         await peerState.pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+        if (peerState.checkVideo) setTimeout(() => peerState.checkVideo?.(), 0);
       }
     };
 
