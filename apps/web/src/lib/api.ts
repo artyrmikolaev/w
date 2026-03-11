@@ -1,8 +1,7 @@
 import type { User, UserBasic, UserPresence, Chat, Message, MediaItem, StoryGroup, FriendRequest, FriendWithId, FriendshipStatus } from './types';
 
-// The Render backend was previously used, now switching to the Hostinger VPS backend
-// export const API_BASE = 'https://w-e6gq.onrender.com/api';
-export const API_BASE = 'https://messengertest.shop/api';
+// Use relative URL so the app works on any domain/IP (served by same Nginx)
+export const API_BASE = '/api';
 class ApiClient {
   private token: string | null = null;
 

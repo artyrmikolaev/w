@@ -14,9 +14,8 @@ export function connectSocket(token: string): Socket {
     socket = null;
   }
 
-  // Always  // The Render backend was previously used, now switching to the Hostinger VPS backend
-  // const socketUrl = 'https://w-e6gq.onrender.com';
-  const socketUrl = 'https://messengertest.shop';
+  // Use current page origin so socket connects to the same server
+  const socketUrl = window.location.origin;
 
   socket = io(socketUrl, {
     auth: { token },
