@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SERVER_URL } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { useLang } from '../lib/i18n';
 import { Eye, EyeOff, ArrowRight, UserPlus, LogIn } from 'lucide-react';
@@ -27,8 +28,10 @@ export default function AuthPage() {
       } else {
         await register(username, displayName || username, password, bio);
       }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Ошибка');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      const errorMessage = err?.message || err?.toString() || 'Произошла неизвестная ошибка';
+      setError(`${errorMessage} (URL: ${SERVER_URL})`);
     } finally {
       setIsSubmitting(false);
     }
@@ -110,13 +113,16 @@ export default function AuthPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+                className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs overflow-hidden break-words"
                 role="alert"
               >
                 {error}
               </motion.div>
             )}
           </AnimatePresence>
+          <div className="text-[10px] text-zinc-500 text-center mb-4 break-words">
+            URL: {SERVER_URL}
+          </div>
 
           {/* Форма */}
           <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">

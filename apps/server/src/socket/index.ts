@@ -51,7 +51,7 @@ export function setupSocket(io: Server) {
   rescheduleMessages(io);
 
   io.use((socket: AuthSocket, next) => {
-    const token = socket.handshake.auth.token;
+    const token = socket.handshake.auth?.token || socket.handshake.query?.token;
     if (!token) return next(new Error('Требуется авторизация'));
 
     try {

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { api } from '../lib/api';
 import { connectSocket, disconnectSocket } from '../lib/socket';
 import type { User } from '../lib/types';
@@ -15,11 +16,13 @@ interface AuthState {
   updateUser: (data: Partial<User>) => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  token: localStorage.getItem('vortex_token'),
-  user: null,
-  isLoading: true,
-  error: null,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      token: localStorage.getItem('vortex_token'),
+      user: null,
+      isLoading: true,
+      error: null,
 
   login: async (username, password) => {
     try {
@@ -91,10 +94,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ token: null, user: null, isLoading: false });
   },
 
-  updateUser: (data) => {
-    const { user } = get();
-    if (user) {
-      set({ user: { ...user, ...data } });
-    }
-  },
-}));
+    updateUser: (data) => {
+      const { user } = get();
+      if (user) {
+        set({ user: { ...user, ...data } });
+      }
+    },
+  }),
+  {
+    name: 'vortex-auth-storage',
+    storage: createJSONStorage(() => localStorage),
+    partialize: (state) => ({ user: state.user }),
+  }
+));

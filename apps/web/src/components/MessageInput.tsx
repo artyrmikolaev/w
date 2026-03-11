@@ -601,21 +601,29 @@ export default function MessageInput({ chatId }: MessageInputProps) {
 
       {/* Recording UI */}
       {isRecording ? (
-        <div className="flex items-center gap-3">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="flex items-center gap-3 bg-red-500/10 backdrop-blur-[40px] rounded-[2rem] border border-red-500/20 p-2 w-full max-w-3xl mx-auto shadow-[0_8px_32px_rgba(239,68,68,0.15)]"
+        >
           <button
             onClick={cancelRecording}
-            className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors flex-shrink-0"
+            className="p-2 ml-1 rounded-full text-red-400 hover:bg-red-500/20 transition-colors flex-shrink-0"
           >
             <X size={20} />
           </button>
-          <div className="flex-1 flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-sm text-zinc-300 font-mono">{formatTime(recordingTime)}</span>
-            <div className="flex-1 flex items-center gap-0.5 h-6">
+          <div className="flex-1 flex items-center gap-3 bg-black/20 rounded-full px-4 py-1.5">
+            <motion.span 
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]" 
+            />
+            <span className="text-sm text-red-100 font-mono font-medium">{formatTime(recordingTime)}</span>
+            <div className="flex-1 flex items-center gap-0.5 h-6 ml-2">
               {liveBars.map((h, i) => (
                 <div
                   key={i}
-                  className="flex-1 bg-vortex-400/60 rounded-full transition-all duration-100"
+                  className="flex-1 bg-red-400/80 rounded-full transition-all duration-75"
                   style={{ height: `${h}%` }}
                 />
               ))}
@@ -623,11 +631,11 @@ export default function MessageInput({ chatId }: MessageInputProps) {
           </div>
           <button
             onClick={stopRecording}
-            className="p-3 rounded-full bg-accent hover:bg-accent-hover transition-colors text-white flex-shrink-0"
+            className="p-3 mr-0.5 rounded-full bg-red-500 hover:bg-red-600 transition-colors text-white flex-shrink-0 shadow-lg"
           >
             <Send size={18} />
           </button>
-        </div>
+        </motion.div>
       ) : (
         <div className="flex items-end gap-1.5 bg-white/[0.04] backdrop-blur-[40px] rounded-[2rem] border border-white/[0.08] p-2 w-full max-w-3xl mx-auto transition-all duration-300 hover:bg-white/[0.06] focus-within:bg-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.3)] focus-within:shadow-[0_8px_40px_rgba(99,102,241,0.15)] focus-within:border-vortex-500/30 group">
           {/* Attach */}
@@ -746,7 +754,7 @@ export default function MessageInput({ chatId }: MessageInputProps) {
               onContextMenu={handleInputContextMenu}
               placeholder={attachment ? t('addCaption') : t('message')}
               rows={1}
-              className="w-full resize-none bg-transparent text-[15px] text-white placeholder-white/40 leading-relaxed py-2.5 px-2 border-none focus:ring-0 max-h-[150px] outline-none"
+              className="w-full resize-none bg-transparent text-[15px] text-white placeholder-white/40 leading-relaxed py-2.5 px-2 border-none focus:ring-0 max-h-[150px] outline-none transition-[height] duration-200 ease-out"
             />
           </div>
 

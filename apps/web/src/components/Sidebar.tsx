@@ -68,9 +68,9 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className={`w-full md:w-[340px] h-full flex-col bg-surface-secondary md:rounded-3xl overflow-hidden border-0 md:border border-border/50 shadow-none md:shadow-2xl relative z-10 ${activeChat ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`w-full md:w-[340px] h-full flex-col bg-surface-secondary/80 backdrop-blur-2xl md:rounded-3xl overflow-hidden border-0 md:border border-white/5 shadow-none md:shadow-2xl relative z-10 ${activeChat ? 'hidden md:flex' : 'flex'}`}>
         {/* Шапка */}
-        <div className="h-[76px] px-4 flex items-center gap-3 border-b border-border/40 bg-surface-secondary flex-shrink-0">
+        <div className="h-[76px] px-4 flex items-center gap-3 border-b border-white/5 bg-transparent flex-shrink-0">
           <button
             onClick={() => setShowSideMenu(true)}
             className="p-2 rounded-lg hover:bg-surface-hover transition-colors text-zinc-400 hover:text-white"

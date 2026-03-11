@@ -256,41 +256,82 @@ export default function ChatView({ onStartCall, onStartGroupCall }: { onStartCal
 
   if (!activeChat || !chat) {
     return (
-      <div className={`flex-1 w-full h-full flex-col items-center justify-center bg-surface-secondary md:rounded-3xl overflow-hidden border-0 md:border border-border/50 shadow-none md:shadow-2xl relative z-0 ${!activeChat ? 'hidden md:flex' : 'flex'} backdrop-blur-3xl group`}>
-        {/* Slowly pulsing purple background as requested */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden transition-opacity duration-[10000ms]">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-vortex-600/10 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] bg-purple-600/15 rounded-full blur-[100px] animate-[pulse_12s_ease-in-out_infinite_reverse]" />
+      <div className={`flex-1 w-full h-full flex-col items-center justify-center bg-surface md:rounded-3xl overflow-hidden border-0 md:border border-border/50 shadow-none md:shadow-2xl relative z-0 ${!activeChat ? 'hidden md:flex' : 'flex'} group`}>
+        {/* Dynamic Animated Background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden mix-blend-screen">
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+              rotate: [0, 90, 0]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] max-w-[800px] max-h-[800px] bg-vortex-600/20 rounded-full blur-[120px]" 
+          />
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.5, 1],
+              opacity: [0.2, 0.4, 0.2],
+              x: ['-50%', '-30%', '-50%'],
+              y: ['-50%', '-70%', '-50%']
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/2 left-1/2 w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-purple-600/20 rounded-full blur-[100px]" 
+          />
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.3, 1],
+              opacity: [0.1, 0.3, 0.1],
+              x: ['-50%', '-70%', '-50%'],
+              y: ['-50%', '-30%', '-50%']
+            }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/2 left-1/2 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] bg-blue-600/20 rounded-full blur-[90px]" 
+          />
         </div>
 
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMSkvPjwvc3ZnPg==')] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)] opacity-20 pointer-events-none" />
+        {/* Stars/Noise Overlay */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMikvPjwvc3ZnPg==')] [mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)] opacity-30 pointer-events-none" />
 
-        <div className="text-center relative z-10 w-full max-w-sm px-6">
+        <div className="text-center relative z-10 w-full max-w-md px-6 flex flex-col items-center">
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="w-28 h-28 mx-auto mb-8 rounded-[2rem] bg-gradient-to-br from-vortex-500/20 to-purple-600/20 flex items-center justify-center shadow-[0_0_60px_-15px_var(--color-accent)] ring-1 ring-white/10 backdrop-blur-2xl relative"
+            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+            className="relative group mb-8"
           >
-            <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none" />
-            <img src={getAssetUrl('/logo.png')} alt="Messenger Test" className="w-16 h-16 rounded-2xl object-cover shadow-2xl transform hover:scale-105 transition-transform" />
+            {/* Logo Glow */}
+            <motion.div 
+              animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.05, 1] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 bg-vortex-500/40 rounded-[2.5rem] blur-xl group-hover:bg-vortex-400/60 transition-colors duration-500"
+            />
+            {/* Logo Container */}
+            <div className="w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.3)] ring-1 ring-white/20 backdrop-blur-xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-tr from-vortex-500/20 via-transparent to-purple-500/20 pointer-events-none" />
+              <img src={getAssetUrl('/logo.png')} alt="Messenger Test" className="w-20 h-20 rounded-[1.25rem] object-cover shadow-2xl transform group-hover:scale-110 transition-transform duration-500 ease-out relative z-10" />
+            </div>
           </motion.div>
+
           <motion.h2
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-vortex-400 via-fuchsia-400 to-indigo-400 mb-4 drop-shadow-lg tracking-tight"
+            className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-200 to-zinc-500 mb-4 tracking-tight"
           >
             Messenger Test
           </motion.h2>
-          <motion.p
+
+          <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-sm font-medium text-zinc-300 bg-white/5 backdrop-blur-lg py-2.5 px-6 rounded-full inline-flex border border-white/10 shadow-lg"
           >
-            {t('selectChat')}
-          </motion.p>
+            <span className="text-[15px] font-medium text-zinc-300 bg-white/5 hover:bg-white/10 backdrop-blur-md py-3 px-8 rounded-full inline-flex items-center gap-2 border border-white/10 shadow-xl transition-colors cursor-default">
+              <div className="w-2 h-2 rounded-full bg-vortex-400 animate-pulse" />
+              {t('selectChat')}
+            </span>
+          </motion.div>
         </div>
       </div>
     );

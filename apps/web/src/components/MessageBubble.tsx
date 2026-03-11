@@ -54,7 +54,7 @@ function MessageBubble({
   const [showContext, setShowContext] = useState(false);
   const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
   const [deleteMenuMode, setDeleteMenuMode] = useState(false);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
@@ -359,8 +359,12 @@ function MessageBubble({
 
   return (
     <>
-      <div
-        ref={bubbleRef}
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 15, x: isMine ? 10 : -10, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+        ref={bubbleRef as any}
         className={`flex ${isMine ? 'justify-end' : 'justify-start'} group mb-0.5 relative transition-colors duration-200 ${selectionMode ? 'px-4 -mx-4 cursor-pointer hover:bg-white/5 rounded-xl' : ''
           } ${isSelected ? 'bg-vortex-500/10 hover:bg-vortex-500/20' : ''}`}
         onClick={() => {
@@ -436,36 +440,43 @@ function MessageBubble({
               </div>
             )}
 
-            {/* Изображения */}
-            {hasImage && (
-              <div className={`${message.content ? 'mb-2 -mx-3 -mt-2' : ''} ${!message.content ? 'rounded-[1.25rem]' : ''} bg-black/40 overflow-hidden`}>
+            {/* Медиа (Изображения и Видео) */}
+            {(hasImage || hasVideo) && (
+              <div className={`${message.content ? 'mb-2 -mx-3 -mt-2' : ''} ${!message.content ? 'rounded-[1.25rem]' : ''} bg-black/40 overflow-hidden flex flex-wrap`}>
                 {media
-                  .filter((m) => m.type === 'image')
-                  .map((m) => (
-                    <img
-                      key={m.id}
-                      src={m.url}
-                      alt=""
-                      className="max-w-full max-h-80 object-cover cursor-pointer hover:brightness-90 transition-all"
-                      onClick={() => setLightboxUrl(m.url)}
-                    />
+                  .filter((m) => m.type === 'image' || m.type === 'video')
+                  .map((m, idx, arr) => (
+                    m.type === 'image' ? (
+                      <img
+                        key={m.id}
+                        src={m.url}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className={`max-w-full object-cover cursor-pointer hover:brightness-90 transition-all ${arr.length > 1 ? 'w-1/2 h-40' : 'w-full max-h-80'}`}
+                        onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
+                      />
+                    ) : (
+                      <div 
+                        key={m.id} 
+                        className={`relative group cursor-pointer bg-black/60 ${arr.length > 1 ? 'w-1/2 h-40' : 'w-full max-h-80'}`}
+                        onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
+                      >
+                        <video
+                          src={m.url}
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                          preload="metadata"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-12 h-12 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white shadow-xl ring-1 ring-white/20">
+                            <Play size={24} fill="currentColor" className="ml-1" />
+                          </div>
+                        </div>
+                      </div>
+                    )
                   ))}
               </div>
             )}
-
-            {/* Видео */}
-            {hasVideo &&
-              media
-                .filter((m) => m.type === 'video')
-                .map((m) => (
-                  <div key={m.id} className={`${message.content ? 'mb-2 -mx-3 -mt-2' : ''}`}>
-                    <video
-                      src={m.url}
-                      controls
-                      className="max-w-full max-h-80 rounded-lg"
-                    />
-                  </div>
-                ))}
 
             {/* Голосовое */}
             {hasVoice && (
@@ -690,7 +701,7 @@ function MessageBubble({
             ) : null}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Контекстное меню */}
       {typeof document !== 'undefined' && createPortal(
@@ -818,9 +829,13 @@ function MessageBubble({
 
       {/* Lightbox */}
       <AnimatePresence>
-        {lightboxUrl && (
-          <ImageLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
-        )}
+      {typeof lightboxIndex === 'number' && (
+        <ImageLightbox
+          images={media.filter(m => m.type === 'image' || m.type === 'video').map(m => ({ url: m.url, type: m.type }))}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
       </AnimatePresence>
     </>
   );

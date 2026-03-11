@@ -1,17 +1,71 @@
 import { useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
 import { useAuthStore } from './stores/authStore';
+import { useChatStore } from './stores/chatStore';
+import { getSocket } from './lib/socket';
 import AuthPage from './pages/AuthPage';
 import ChatPage from './pages/ChatPage';
+import NetworkBanner from './components/NetworkBanner';
 
 export default function App() {
   const { token, user, checkAuth, isLoading } = useAuthStore();
+  const { loadChats } = useChatStore();
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
 
-  if (isLoading) {
+    // Capacitor listener for background/foreground state
+    const listener = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) {
+        console.log('App returned to foreground, resyncing data...');
+        // Re-authenticate and reload chats to ensure we didn't miss messages
+        checkAuth().then(() => {
+          const socket = getSocket();
+          if (socket && !socket.connected) {
+            socket.connect();
+          }
+          if (useAuthStore.getState().token) {
+            loadChats();
+          }
+        });
+      }
+    });
+
+    // Initialize Push Notifications if native
+    if (Capacitor.isNativePlatform()) {
+      PushNotifications.requestPermissions().then(result => {
+        if (result.receive === 'granted') {
+          PushNotifications.register();
+        }
+      });
+
+      PushNotifications.addListener('registration', (token) => {
+        console.log('Push registration success, token:', token.value);
+        // Here we would typically send this token to our backend
+      });
+
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        console.log('Push received: ', notification);
+      });
+
+      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+        console.log('Push action performed: ', notification);
+      });
+    }
+
+    return () => {
+      listener.then(l => l.remove());
+      if (Capacitor.isNativePlatform()) {
+        PushNotifications.removeAllListeners();
+      }
+    };
+  }, [checkAuth, loadChats]);
+
+  // Show loading only if we are loading and don't have a cached user
+  if (isLoading && !user) {
     return (
       <div className="h-full flex items-center justify-center bg-surface">
         <div className="flex flex-col items-center gap-4">
@@ -23,13 +77,16 @@ export default function App() {
   }
 
   return (
-    <AnimatePresence mode="wait">
-      {token && user ? (
-        <ChatPage key="chat" />
-      ) : (
-        <AuthPage key="auth" />
-      )}
-    </AnimatePresence>
+    <>
+      <NetworkBanner />
+      <AnimatePresence mode="wait">
+        {token && user ? (
+          <ChatPage key="chat" />
+        ) : (
+          <AuthPage key="auth" />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

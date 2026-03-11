@@ -1,7 +1,16 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
+import { get, set, del } from 'idb-keyval';
 import { api } from '../lib/api';
 import { useAuthStore } from './authStore';
 import type { Chat, ChatMember, Message, TypingUser } from '../lib/types';
+
+// Wrapper for IndexedDB storage
+const idbStorage: StateStorage = {
+  getItem: async (name) => (await get(name)) || null,
+  setItem: async (name, value) => await set(name, value),
+  removeItem: async (name) => await del(name),
+};
 
 interface ChatState {
   chats: Chat[];
@@ -44,8 +53,10 @@ interface ChatState {
   clearStore: () => void;
 }
 
-export const useChatStore = create<ChatState>((set, get) => ({
-  chats: [],
+export const useChatStore = create<ChatState>()(
+  persist(
+    (set, get) => ({
+      chats: [],
   activeChat: null,
   messages: {},
   pinnedMessages: {},
@@ -464,4 +475,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
       editingMessage: null,
     });
   },
-}));
+    }),
+    {
+      name: 'vortex-chat-storage',
+      storage: createJSONStorage(() => idbStorage),
+      partialize: (state) => ({
+        chats: state.chats,
+        messages: state.messages,
+        pinnedMessages: state.pinnedMessages,
+      }),
+    }
+  )
+);
