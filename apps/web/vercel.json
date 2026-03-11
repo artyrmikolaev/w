@@ -1,5 +1,1 @@
-{
-  "framework": "vite",
-  "buildCommand": "npm run build:web",
-  "outputDirectory": "dist"
-}
+{"framework": "vite", "buildCommand": "yarn run build:web", "installCommand": "yarn install"}

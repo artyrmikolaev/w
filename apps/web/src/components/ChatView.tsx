@@ -16,6 +16,7 @@ import {
   Pin,
   Forward,
   Bookmark,
+  ArrowLeft,
 } from 'lucide-react';
 import { useChatStore } from '../stores/chatStore';
 import { useAuthStore } from '../stores/authStore';
@@ -255,7 +256,7 @@ export default function ChatView({ onStartCall, onStartGroupCall }: { onStartCal
 
   if (!activeChat || !chat) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-surface-secondary/50 rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl relative z-0 backdrop-blur-3xl group">
+      <div className={`flex-1 w-full h-full flex-col bg-surface-secondary md:rounded-3xl overflow-hidden border-0 md:border border-border/50 shadow-none md:shadow-2xl relative z-0 ${!activeChat ? 'hidden md:flex' : 'flex'} backdrop-blur-3xl group`}>
         {/* Slowly pulsing purple background as requested */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden transition-opacity duration-[10000ms]">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-vortex-600/10 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite]" />
@@ -432,7 +433,13 @@ export default function ChatView({ onStartCall, onStartGroupCall }: { onStartCal
           </div>
         </div>
       ) : (
-        <div className="h-[76px] flex items-center justify-between px-6 border-b border-border/40 bg-surface-secondary/80 backdrop-blur-xl z-20 flex-shrink-0">
+        <div className="h-[76px] flex items-center justify-between px-2 md:px-6 border-b border-border/40 bg-surface-secondary/80 backdrop-blur-xl z-20 flex-shrink-0">
+          <button 
+            onClick={() => setActiveChat(null)} 
+            className="md:hidden mr-2 p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition"
+          >
+            <ArrowLeft size={24} />
+          </button>
           <button
             className="flex items-center gap-3 min-w-0 flex-1 group transition-all"
             onClick={() => {

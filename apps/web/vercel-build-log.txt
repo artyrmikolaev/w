@@ -1,0 +1,63 @@
+> [debug] [2026-03-10T19:04:22.265Z] Found config in file "/Users/mikolaev/Downloads/78/telega/apps/web/vercel.json"
+> [debug] [2026-03-10T19:04:22.266Z] Vercel CLI 50.29.0
+> [debug] [2026-03-10T19:04:22.267Z] Agent/TTY/nonInteractive: isAgent=true agentName=antigravity stdin.isTTY=true --non-interactive=false explicitFalse=false => nonInteractive=false
+> [debug] [2026-03-10T19:04:22.267Z] user supplied known subcommand: "build"
+> [debug] [2026-03-10T19:04:22.300Z] Setting target to production
+WARNING! Build not running on Vercel. System environment variables will not be available.
+> [debug] [2026-03-10T19:04:22.304Z] Loaded environment variables from "/Users/mikolaev/Downloads/78/telega/apps/web/.vercel/.env.production.local"
+> [debug] [2026-03-10T19:04:22.312Z] Locating files /Users/mikolaev/Downloads/78/telega/apps/web
+> [debug] [2026-03-10T19:04:22.313Z] Ignoring /Users/mikolaev/Downloads/78/telega/apps/web/.DS_Store
+> [debug] [2026-03-10T19:04:22.313Z] Ignoring /Users/mikolaev/Downloads/78/telega/apps/web/.gitignore
+> [debug] [2026-03-10T19:04:22.313Z] Ignoring /Users/mikolaev/Downloads/78/telega/apps/web/.vercel
+> [debug] [2026-03-10T19:04:22.314Z] Ignoring /Users/mikolaev/Downloads/78/telega/apps/web/android
+> [debug] [2026-03-10T19:04:22.314Z] Ignoring /Users/mikolaev/Downloads/78/telega/apps/web/dist-electron
+> [debug] [2026-03-10T19:04:22.314Z] Ignoring /Users/mikolaev/Downloads/78/telega/apps/web/ios
+> [debug] [2026-03-10T19:04:22.314Z] Ignoring /Users/mikolaev/Downloads/78/telega/apps/web/node_modules
+> [debug] [2026-03-10T19:04:22.314Z] Ignoring /Users/mikolaev/Downloads/78/telega/apps/web/release
+> [debug] [2026-03-10T19:04:22.315Z] Locating files /Users/mikolaev/Downloads/78/telega/apps/web [2ms]
+> [debug] [2026-03-10T19:04:22.384Z] Imported Builder "@vercel/static-build" from "/Users/mikolaev/.npm/_npx/67eb4586ca667318/node_modules/@vercel/static-build"
+> [debug] [2026-03-10T19:04:22.384Z] Resolved builders: "@vercel/static-build => 2.8.46"
+> [debug] [2026-03-10T19:04:22.390Z] Setting env VERCEL_PROJECT_SETTINGS_NODE_VERSION to "24.x"
+> [debug] [2026-03-10T19:04:22.390Z] Building entrypoint "package.json" with "@vercel/static-build"
+Installing dependencies...
+
+up to date in 391ms
+
+108 packages are looking for funding
+  run `npm fund` for details
+Running "npm run build"
+
+> @vortex/web@1.0.0 build
+> tsc -b && vite build
+
+vite v6.4.1 building for production...
+transforming...
+✓ 2875 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                     0.81 kB │ gzip:   0.44 kB
+dist/assets/index-Cj6BQIGq.css    110.28 kB │ gzip:  15.74 kB
+dist/assets/index-B0Gnoj0T.js   1,213.34 kB │ gzip: 309.76 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.60s
+vite v6.4.1 building for production...
+transforming...
+✓ 1 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-electron/main.js  0.99 kB │ gzip: 0.54 kB
+✓ built in 6ms
+vite v6.4.1 building for production...
+transforming...
+✓ 1 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-electron/preload.mjs  0.15 kB │ gzip: 0.14 kB
+✓ built in 3ms
+Build Completed in .vercel/output [5s]
+> [debug] [2026-03-10T19:04:27.796Z] Telemetry event tracked
+> [debug] [2026-03-10T19:04:27.810Z] Telemetry subprocess exited with code 0

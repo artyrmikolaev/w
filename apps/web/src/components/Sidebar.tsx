@@ -68,7 +68,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className="w-[340px] h-full flex flex-col bg-surface-secondary rounded-3xl overflow-hidden border border-border/50 shadow-2xl relative z-10">
+      <div className={`w-full md:w-[340px] h-full flex-col bg-surface-secondary md:rounded-3xl overflow-hidden border-0 md:border border-border/50 shadow-none md:shadow-2xl relative z-10 ${activeChat ? 'hidden md:flex' : 'flex'}`}>
         {/* Шапка */}
         <div className="h-[76px] px-4 flex items-center gap-3 border-b border-border/40 bg-surface-secondary flex-shrink-0">
           <button
