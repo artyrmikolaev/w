@@ -362,7 +362,7 @@ export function setupSocket(io: Server) {
               const senderName = message.sender.displayName || message.sender.username;
               const text = message.content ? message.content : `[${message.type}]`;
               await sendPushNotification(
-                tokens.map(t => t.token),
+                tokens.map((t: { token: string }) => t.token),
                 senderName,
                 text,
                 { type: 'new_message', chatId: data.chatId }
@@ -767,7 +767,7 @@ export function setupSocket(io: Server) {
             const callerName = callerInfo?.displayName || callerInfo?.username || 'Кто-то';
             const callTypeName = data.callType === 'video' ? 'видеозвонок' : 'аудиозвонок';
             await sendPushNotification(
-              tokens.map(t => t.token),
+              tokens.map((t: { token: string }) => t.token),
               'Входящий звонок',
               `${callerName} звонит вам (${callTypeName})`,
               { type: 'call_offer', chatId: chatId || '', callType: data.callType }
