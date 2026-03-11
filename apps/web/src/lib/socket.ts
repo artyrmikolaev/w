@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { io, Socket } from 'socket.io-client';
 
 let socket: Socket | null = null;
@@ -19,7 +20,8 @@ export function connectSocket(token: string): Socket {
   const isLocalOrNative = window.location.origin.includes('localhost') ||
                         window.location.origin.includes('127.0.0.1') ||
                         window.location.protocol === 'file:' ||
-                        window.location.protocol === 'capacitor:';
+                        window.location.protocol === 'capacitor:' ||
+                        Capacitor.isNativePlatform();
                         
   const socketUrl = isLocalOrNative ? 'https://messengertest.shop' : window.location.origin;
 

@@ -1,5 +1,7 @@
 import type { User, UserBasic, UserPresence, Chat, Message, MediaItem, StoryGroup, FriendRequest, FriendWithId, FriendshipStatus } from './types';
 
+import { Capacitor } from '@capacitor/core';
+
 // Dynamically determine the API base.
 // If we are running in a native app (Capacitor/Electron) or local dev, point to the live server.
 // Otherwise (running on the real domain/VPS), use the relative path so it just works.
@@ -7,7 +9,8 @@ export const SERVER_URL = (
   window.location.origin.includes('localhost') ||
   window.location.origin.includes('127.0.0.1') ||
   window.location.protocol === 'file:' ||
-  window.location.protocol === 'capacitor:'
+  window.location.protocol === 'capacitor:' ||
+  Capacitor.isNativePlatform()
 ) ? 'https://messengertest.shop' : window.location.origin;
 
 export const API_BASE = `${SERVER_URL}/api`;
