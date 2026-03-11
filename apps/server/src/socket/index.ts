@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../db';
 import { config } from '../config';
 import { SENDER_SELECT, deleteUploadedFile } from '../shared';
+import { initFirebase, sendPushNotification } from '../lib/push';
 
 interface AuthSocket extends Socket {
   userId?: string;
@@ -47,6 +48,7 @@ async function isChatMember(chatId: string, userId: string): Promise<boolean> {
 }
 
 export function setupSocket(io: Server) {
+  initFirebase();
   // On startup, re-schedule any pending scheduled messages
   rescheduleMessages(io);
 
@@ -96,6 +98,21 @@ export function setupSocket(io: Server) {
 
     socket.on('leave_chat', (chatId: string) => {
       socket.leave(`chat:${chatId}`);
+    });
+
+    // Регистрация push-токена устройства
+    socket.on('register_device_token', async (data: { token: string; platform: string }) => {
+      if (!data.token || !data.platform) return;
+      try {
+        await prisma.deviceToken.upsert({
+          where: { token: data.token },
+          create: { userId, token: data.token, platform: data.platform },
+          update: { userId, platform: data.platform, updatedAt: new Date() },
+        });
+        console.log(`Registered push token for user ${userId} (${data.platform})`);
+      } catch (err) {
+        console.error('Error registering device token:', err);
+      }
     });
 
     // Отправка сообщения
@@ -328,6 +345,33 @@ export function setupSocket(io: Server) {
           ...message,
           readBy: [{ userId }],
         });
+
+        // Отправка Push-уведомлений оффлайн участникам
+        try {
+          const offlineMembers = members.filter(m => {
+            const socks = onlineUsers.get(m.userId);
+            return !socks || socks.size === 0;
+          });
+          if (offlineMembers.length > 0) {
+            const offlineUserIds = offlineMembers.map(m => m.userId);
+            const tokens = await prisma.deviceToken.findMany({
+              where: { userId: { in: offlineUserIds } },
+              select: { token: true }
+            });
+            if (tokens.length > 0) {
+              const senderName = message.sender.displayName || message.sender.username;
+              const text = message.content ? message.content : `[${message.type}]`;
+              await sendPushNotification(
+                tokens.map(t => t.token),
+                senderName,
+                text,
+                { type: 'new_message', chatId: data.chatId }
+              );
+            }
+          }
+        } catch (pushErr) {
+          console.error('Push notification error:', pushErr);
+        }
       } catch (error) {
         console.error('Send message error:', error);
         socket.emit('error', { message: 'Ошибка отправки сообщения' });
@@ -711,6 +755,27 @@ export function setupSocket(io: Server) {
       } else {
         // Target is offline
         socket.emit('call_unavailable', { targetUserId: data.targetUserId });
+        
+        // Send push notification for incoming call if offline
+        try {
+          const tokens = await prisma.deviceToken.findMany({
+            where: { userId: data.targetUserId },
+            select: { token: true }
+          });
+          if (tokens.length > 0) {
+            const callerInfo = await prisma.user.findUnique({ where: { id: userId }, select: { displayName: true, username: true } });
+            const callerName = callerInfo?.displayName || callerInfo?.username || 'Кто-то';
+            const callTypeName = data.callType === 'video' ? 'видеозвонок' : 'аудиозвонок';
+            await sendPushNotification(
+              tokens.map(t => t.token),
+              'Входящий звонок',
+              `${callerName} звонит вам (${callTypeName})`,
+              { type: 'call_offer', chatId: chatId || '', callType: data.callType }
+            );
+          }
+        } catch (pushErr) {
+          console.error('Push notification error:', pushErr);
+        }
       }
     });
 

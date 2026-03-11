@@ -44,7 +44,18 @@ export default function App() {
 
       PushNotifications.addListener('registration', (token) => {
         console.log('Push registration success, token:', token.value);
-        // Here we would typically send this token to our backend
+        const socket = getSocket();
+        if (socket && socket.connected) {
+          socket.emit('register_device_token', { token: token.value, platform: Capacitor.getPlatform() });
+        } else {
+          // Retry later if socket isn't ready
+          setTimeout(() => {
+            const retrySocket = getSocket();
+            if (retrySocket && retrySocket.connected) {
+              retrySocket.emit('register_device_token', { token: token.value, platform: Capacitor.getPlatform() });
+            }
+          }, 3000);
+        }
       });
 
       PushNotifications.addListener('pushNotificationReceived', (notification) => {
