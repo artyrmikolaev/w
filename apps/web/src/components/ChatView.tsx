@@ -256,7 +256,7 @@ export default function ChatView({ onStartCall, onStartGroupCall }: { onStartCal
 
   if (!activeChat || !chat) {
     return (
-      <div className={`flex-1 w-full h-full flex-col bg-surface-secondary md:rounded-3xl overflow-hidden border-0 md:border border-border/50 shadow-none md:shadow-2xl relative z-0 ${!activeChat ? 'hidden md:flex' : 'flex'} backdrop-blur-3xl group`}>
+      <div className={`flex-1 w-full h-full flex-col items-center justify-center bg-surface-secondary md:rounded-3xl overflow-hidden border-0 md:border border-border/50 shadow-none md:shadow-2xl relative z-0 ${!activeChat ? 'hidden md:flex' : 'flex'} backdrop-blur-3xl group`}>
         {/* Slowly pulsing purple background as requested */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden transition-opacity duration-[10000ms]">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-vortex-600/10 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite]" />
